@@ -1,7 +1,7 @@
 {
   "name": "multi-column-bookmark-editor",
-  "version": "5.0.4",
-  "description": "A chrome extension to edit bookmarks with multi column view",
+  "version": "1.0.0",
+  "description": "A chrome extension to edit bookmarks with multi column view.",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -1,9 +1,3 @@
-type BookmarkNodeType = 'FOLDER' | 'BOOKMARK';
+type BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 
-type BookmarkNodeModel = {
-  type: BookmarkNodeType;
-  label: string;
-  nodes?: BookmarkNodeModel[];
-};
-
-export { BookmarkNodeType, BookmarkNodeModel };
+export { BookmarkTreeNode };

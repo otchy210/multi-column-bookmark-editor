@@ -1,13 +1,13 @@
 import { Box, List, Paper } from '@mui/material';
 import React from 'react';
-import { BookmarkNodeModel } from '../types';
+import { BookmarkTreeNode } from '../types';
 import BookmarkNode from './BookmarkNode';
 
 type Props = {
-  nodes: BookmarkNodeModel[];
+  tree: BookmarkTreeNode[];
 };
 
-export default function BookmarkPane({ nodes }: Props) {
+export default function BookmarkPane({ tree }: Props) {
   return (
     <Box sx={{ p: 1 }}>
       <Paper
@@ -20,8 +20,8 @@ export default function BookmarkPane({ nodes }: Props) {
         }}
       >
         <List sx={{ p: 0 }}>
-          {nodes.map((node) => (
-            <BookmarkNode model={node} />
+          {tree.map((node) => (
+            <BookmarkNode node={node} />
           ))}
         </List>
       </Paper>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookmarkNodeModel } from '../types';
+import { BookmarkTreeNode } from '../types';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
@@ -13,17 +13,17 @@ import {
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 type Props = {
-  model: BookmarkNodeModel;
+  node: BookmarkTreeNode;
   indent?: number;
 };
 
-export default function BookmarkNode({ model, indent = 0 }: Props) {
+export default function BookmarkNode({ node, indent = 0 }: Props) {
   const [open, setOpen] = useState(false);
-  const isFolder = model.type == 'FOLDER';
-  const nodes: BookmarkNodeModel[] = model.nodes ?? [];
-  const hasNodes = nodes.length > 0;
+  const isFolder = !node.url;
+  const children: BookmarkTreeNode[] = node.children ?? [];
+  const hasChildren = children.length > 0;
   const handleClick = () => {
-    setOpen(hasNodes && !open);
+    setOpen(hasChildren && !open);
   };
   return (
     <>
@@ -40,7 +40,7 @@ export default function BookmarkNode({ model, indent = 0 }: Props) {
           )}
         </ListItemIcon>
         <ListItemText
-          primary={`${model.label}${isFolder ? ` (${nodes.length})` : ''}`}
+          primary={`${node.title}${isFolder ? ` (${children.length})` : ''}`}
           sx={{
             pl: 1,
             '> span': {
@@ -50,13 +50,13 @@ export default function BookmarkNode({ model, indent = 0 }: Props) {
             },
           }}
         />
-        {hasNodes && (open ? <ExpandLess /> : <ExpandMore />)}
+        {hasChildren && (open ? <ExpandLess /> : <ExpandMore />)}
       </ListItemButton>
-      {hasNodes && (
+      {hasChildren && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {nodes.map((node) => {
-              return <BookmarkNode model={node} indent={indent + 1} />;
+            {children.map((node) => {
+              return <BookmarkNode node={node} indent={indent + 1} />;
             })}
           </List>
         </Collapse>

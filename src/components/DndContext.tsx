@@ -4,10 +4,16 @@ import { useBookmark } from './BookmarkContext';
 type DndElementContextType = {
   elem: HTMLElement;
   bkId: string;
+  rect: DOMRect;
+};
+type DndCursorPosType = {
+  start: { x: number; y: number };
+  diff: { x: number; y: number };
 };
 type DndContextType = {
   start?: DndElementContextType;
   end?: DndElementContextType;
+  pos?: DndCursorPosType;
 };
 
 const DndContext = createContext<DndContextType | undefined>(undefined);
@@ -28,7 +34,8 @@ const getDndElementContext = (e: Event): DndElementContextType | undefined => {
   while (current && current.tagName != 'BODY') {
     const bkId = current.dataset['bkId'];
     if (bkId) {
-      return { elem: current, bkId };
+      const rect = current.getBoundingClientRect();
+      return { elem: current, bkId, rect };
     }
     if (!current.parentElement) {
       return undefined;
@@ -48,6 +55,7 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
     undefined
   );
   const [end, setEnd] = useState<DndElementContextType | undefined>(undefined);
+  const [pos, setPos] = useState<DndCursorPosType | undefined>(undefined);
   const bookmark = useBookmark();
   useEffect(() => {
     const mouseDownHandler = (e: MouseEvent) => {
@@ -58,12 +66,20 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       if (!newStart) {
         return;
       }
+      const x = e.pageX;
+      const y = e.pageY;
       setStart(newStart);
+      setPos({ start: { x, y }, diff: { x: 0, y: 0 } });
     };
     const mouseMoveHandler = (e: MouseEvent) => {
-      if (!start) {
+      if (!start || !pos) {
         return;
       }
+      const newPos = {
+        ...pos,
+        diff: { x: e.pageX - pos.start.x, y: e.pageY - pos.start.y },
+      };
+      setPos(newPos);
     };
     const mouseUpHandler = (e: MouseEvent) => {
       if (start) {
@@ -77,6 +93,7 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       }
       setStart(undefined);
       setEnd(undefined);
+      setPos(undefined);
     };
     dndRootRef.current?.addEventListener('mousedown', mouseDownHandler);
     dndRootRef.current?.addEventListener('mousemove', mouseMoveHandler);
@@ -86,8 +103,10 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       dndRootRef.current?.removeEventListener('mousemove', mouseMoveHandler);
       dndRootRef.current?.removeEventListener('mouseup', mouseUpHandler);
     };
-  }, [start, end]);
+  }, [start, end, pos, bookmark]);
   return (
-    <DndContext.Provider value={{ start, end }}>{children}</DndContext.Provider>
+    <DndContext.Provider value={{ start, end, pos }}>
+      {children}
+    </DndContext.Provider>
   );
 };

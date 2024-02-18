@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BookmarkTreeNode } from '../types';
 
+export type HoverPos = 'TOP' | 'MIDDLE' | 'BOTTOM';
+
 type BookmarkMap = Record<string, BookmarkTreeNode>;
 export type BookmarkContextType = {
   tree: BookmarkTreeNode[];
   map: BookmarkMap;
+  move: (srcId: string, destId: string, pos: HoverPos) => void;
 };
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
@@ -34,6 +37,30 @@ export const BookmarkProvider = ({ children }: BookmarkProviderProps) => {
     }
     return map;
   };
+  const move = (srcId: string, destId: string, pos: HoverPos) => {
+    switch (pos) {
+      case 'TOP':
+      case 'BOTTOM':
+        const parentId = map[destId].parentId as string;
+        const parent = map[parentId];
+        const children = parent.children ?? [];
+        let index = 0;
+        for (; index < children.length; index++) {
+          const child = children[index];
+          if (child.id == destId) {
+            break;
+          }
+        }
+        if (pos == 'BOTTOM') {
+          index++;
+        }
+        chrome.bookmarks.move(srcId, { parentId, index });
+        break;
+      case 'MIDDLE':
+        chrome.bookmarks.move(srcId, { parentId: destId });
+        break;
+    }
+  };
   const resetTree = async () => {
     const root = await chrome.bookmarks.getTree();
     const children = root[0]?.children;
@@ -58,9 +85,9 @@ export const BookmarkProvider = ({ children }: BookmarkProviderProps) => {
       chrome.bookmarks.onMoved.removeListener(resetTree);
       chrome.bookmarks.onRemoved.removeListener(resetTree);
     };
-  }, []);
+  }, [map]);
   return (
-    <BookmarkContext.Provider value={{ tree, map }}>
+    <BookmarkContext.Provider value={{ tree, map, move }}>
       {children}
     </BookmarkContext.Provider>
   );

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { BookmarkContextType, useBookmark } from './BookmarkContext';
+import { BookmarkContextType, HoverPos, useBookmark } from './BookmarkContext';
 import { lightBlue } from '@mui/material/colors';
 
 type DndElementContextType = {
@@ -13,7 +13,6 @@ type DndCursorPosType = {
 type DndContextType = {
   start?: DndElementContextType;
   rect?: DOMRect;
-  end?: DndElementContextType;
   pos?: DndCursorPosType;
 };
 
@@ -45,7 +44,6 @@ const getDndElementContext = (e: Event): DndElementContextType | undefined => {
   return undefined;
 };
 
-type HoverPos = 'TOP' | 'MIDDLE' | 'BOTTOM';
 const getHoverPos = (
   bookmark: BookmarkContextType,
   dndElem: DndElementContextType,
@@ -111,7 +109,6 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
   const [hover, setHover] = useState<DndElementContextType | undefined>(
     undefined
   );
-  const [end, setEnd] = useState<DndElementContextType | undefined>(undefined);
   const [pos, setPos] = useState<DndCursorPosType | undefined>(undefined);
   const bookmark = useBookmark();
   useEffect(() => {
@@ -159,16 +156,13 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
         const end = getDndElementContext(e);
         if (end && start.bkId != end.bkId) {
           resetBorderColor(end);
-          setEnd(end);
-          const s = bookmark.map[start.bkId];
-          const e = bookmark.map[end.bkId];
-          console.log({ start, end, s, e });
+          const pos = getHoverPos(bookmark, end, e);
+          bookmark.move(start.bkId, end.bkId, pos);
         }
       }
       setStart(undefined);
       setRect(undefined);
       setHover(undefined);
-      setEnd(undefined);
       setPos(undefined);
     };
     dndRootRef.current?.addEventListener('mousedown', mouseDownHandler);
@@ -179,9 +173,9 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       dndRootRef.current?.removeEventListener('mousemove', mouseMoveHandler);
       dndRootRef.current?.removeEventListener('mouseup', mouseUpHandler);
     };
-  }, [start, rect, hover, end, pos, bookmark]);
+  }, [start, rect, hover, pos, bookmark]);
   return (
-    <DndContext.Provider value={{ start, rect, end, pos }}>
+    <DndContext.Provider value={{ start, rect, pos }}>
       {children}
     </DndContext.Provider>
   );

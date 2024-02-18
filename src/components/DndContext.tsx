@@ -97,6 +97,10 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       if (!newStart) {
         return;
       }
+      const bk = bookmark.map[newStart.bkId];
+      if (bk.parentId == '0') {
+        return;
+      }
       const x = e.pageX;
       const y = e.pageY;
       setStart(newStart);

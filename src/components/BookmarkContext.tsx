@@ -85,7 +85,7 @@ export const BookmarkProvider = ({ children }: BookmarkProviderProps) => {
       chrome.bookmarks.onMoved.removeListener(resetTree);
       chrome.bookmarks.onRemoved.removeListener(resetTree);
     };
-  }, [map]);
+  }, []);
   return (
     <BookmarkContext.Provider value={{ tree, map, move }}>
       {children}

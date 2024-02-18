@@ -45,9 +45,33 @@ const getDndElementContext = (e: Event): DndElementContextType | undefined => {
   return undefined;
 };
 
-const isOnUpperHalf = (dndElem: DndElementContextType, e: MouseEvent) => {
+type HoverPos = 'TOP' | 'MIDDLE' | 'BOTTOM';
+const getHoverPos = (
+  bookmark: BookmarkContextType,
+  dndElem: DndElementContextType,
+  e: MouseEvent
+): HoverPos => {
   const rect = dndElem.elem.getBoundingClientRect();
-  return e.pageY < rect.top + rect.height / 2;
+  const bk = bookmark.map[dndElem.bkId];
+  if (bk.parentId == '0') {
+    return 'MIDDLE';
+  }
+  if (bk.url) {
+    if (e.pageY < rect.top + rect.height / 2) {
+      return 'TOP';
+    } else {
+      return 'BOTTOM';
+    }
+  } else {
+    const unit = rect.height / 3;
+    if (e.pageY < rect.top + unit) {
+      return 'TOP';
+    } else if (e.pageY > rect.top + unit + unit) {
+      return 'BOTTOM';
+    } else {
+      return 'MIDDLE';
+    }
+  }
 };
 
 const setBorderColor = (
@@ -55,17 +79,19 @@ const setBorderColor = (
   dndElem: DndElementContextType,
   e: MouseEvent
 ) => {
-  const bk = bookmark.map[dndElem.bkId];
-  if (!bk.url) {
-    dndElem.elem.style.borderColor = lightBlue[800];
-  } else {
-    if (isOnUpperHalf(dndElem, e)) {
+  const pos = getHoverPos(bookmark, dndElem, e);
+  switch (pos) {
+    case 'TOP':
+      resetBorderColor(dndElem);
       dndElem.elem.style.borderTopColor = lightBlue[800];
-      dndElem.elem.style.borderBottomColor = 'transparent';
-    } else {
-      dndElem.elem.style.borderTopColor = 'transparent';
+      break;
+    case 'MIDDLE':
+      dndElem.elem.style.borderColor = lightBlue[800];
+      break;
+    case 'BOTTOM':
+      resetBorderColor(dndElem);
       dndElem.elem.style.borderBottomColor = lightBlue[800];
-    }
+      break;
   }
 };
 

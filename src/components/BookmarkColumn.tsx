@@ -1,10 +1,9 @@
-import { Box, List, Paper } from '@mui/material';
 import React from 'react';
-import { BookmarkTreeNode } from '../types';
-import BookmarkNode from './BookmarkNode';
+import { Box, List, Paper } from '@mui/material';
 import { useBookmark } from './BookmarkContext';
+import { BookmarkNode } from './BookmarkNode';
 
-export default function BookmarkColumn() {
+export const BookmarkColumn: React.FC = () => {
   const bookmark = useBookmark();
   return (
     <Box>
@@ -24,4 +23,4 @@ export default function BookmarkColumn() {
       </Paper>
     </Box>
   );
-}
+};

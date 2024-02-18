@@ -6,33 +6,14 @@ import { Box, Grid, IconButton, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DndProvider } from '../../components/DndContext';
+import { BookmarkProvider } from '../../components/BookmarkContext';
 
 const MIN_COLUMNS = 2;
 const MAX_COLUMNS = 4;
 
 const Options: React.FC = () => {
   const [columns, setColumns] = useState(2);
-  const [tree, setTree] = useState<BookmarkTreeNode[]>([]);
   const dndRootRef = useRef<HTMLDivElement>(null);
-  const resetTree = async () => {
-    const root = await chrome.bookmarks.getTree();
-    if (root[0]?.children) {
-      setTree(root[0].children);
-    }
-  };
-  useEffect(() => {
-    resetTree();
-    chrome.bookmarks.onCreated.addListener(resetTree);
-    chrome.bookmarks.onChanged.addListener(resetTree);
-    chrome.bookmarks.onMoved.addListener(resetTree);
-    chrome.bookmarks.onRemoved.addListener(resetTree);
-    return () => {
-      chrome.bookmarks.onCreated.removeListener(resetTree);
-      chrome.bookmarks.onChanged.removeListener(resetTree);
-      chrome.bookmarks.onMoved.removeListener(resetTree);
-      chrome.bookmarks.onRemoved.removeListener(resetTree);
-    };
-  }, []);
   return (
     <>
       <Global
@@ -43,19 +24,21 @@ const Options: React.FC = () => {
         `}
       />
       <Stack direction="row">
-        <DndProvider dndRootRef={dndRootRef}>
-          <Grid container spacing={1} padding={1} ref={dndRootRef}>
-            {Array(columns)
-              .fill('')
-              .map((v, i) => {
-                return (
-                  <Grid item xs={12 / columns} key={i}>
-                    <BookmarkColumn index={i} tree={tree} />
-                  </Grid>
-                );
-              })}
-          </Grid>
-        </DndProvider>
+        <BookmarkProvider>
+          <DndProvider dndRootRef={dndRootRef}>
+            <Grid container spacing={1} padding={1} ref={dndRootRef}>
+              {Array(columns)
+                .fill('')
+                .map((v, i) => {
+                  return (
+                    <Grid item xs={12 / columns} key={i}>
+                      <BookmarkColumn />
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          </DndProvider>
+        </BookmarkProvider>
         <Stack>
           <Box sx={{ mt: 1, mr: 1 }}>
             <IconButton

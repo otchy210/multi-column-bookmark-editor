@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useBookmark } from './BookmarkContext';
 
 type DndElementContextType = {
   elem: HTMLElement;
@@ -47,6 +48,7 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
     undefined
   );
   const [end, setEnd] = useState<DndElementContextType | undefined>(undefined);
+  const bookmark = useBookmark();
   useEffect(() => {
     const mouseDownHandler = (e: MouseEvent) => {
       if (start) {
@@ -68,7 +70,9 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
         const end = getDndElementContext(e);
         if (end && start.bkId != end.bkId) {
           setEnd(end);
-          console.log({ start, end });
+          const s = bookmark.map[start.bkId];
+          const e = bookmark.map[end.bkId];
+          console.log({ start, end, s, e });
         }
       }
       setStart(undefined);

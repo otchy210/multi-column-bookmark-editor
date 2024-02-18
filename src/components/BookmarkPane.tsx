@@ -9,11 +9,10 @@ type Props = {
 
 export default function BookmarkPane({ tree }: Props) {
   return (
-    <Box sx={{ p: 1 }}>
+    <Box>
       <Paper
         sx={{
           p: 1,
-          maxWidth: '480px',
           height: 'calc(100vh - 32px)',
           overflowY: 'auto',
           overflowX: 'hidden',

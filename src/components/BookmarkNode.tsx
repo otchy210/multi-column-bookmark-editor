@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import { useColumnContext } from './ColumnContext';
 type Props = {
   node: BookmarkTreeNode;
   indent?: number;
@@ -19,6 +20,8 @@ type Props = {
 
 export default function BookmarkNode({ node, indent = 0 }: Props) {
   const [open, setOpen] = useState(false);
+  const columnContext = useColumnContext();
+  const dndId = `${columnContext.index}-${node.id}`;
   const isFolder = !node.url;
   const children: BookmarkTreeNode[] = node.children ?? [];
   const hasChildren = children.length > 0;
@@ -27,7 +30,11 @@ export default function BookmarkNode({ node, indent = 0 }: Props) {
   };
   return (
     <>
-      <ListItemButton onClick={handleClick} sx={{ ml: indent * 2, p: 0 }}>
+      <ListItemButton
+        data-dnd-id={dndId}
+        onClick={handleClick}
+        sx={{ ml: indent * 2, p: 0 }}
+      >
         <ListItemIcon sx={{ minWidth: 'auto' }}>
           {isFolder ? (
             open ? (

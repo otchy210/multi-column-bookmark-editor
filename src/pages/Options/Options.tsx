@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import BookmarkPane from '../../components/BookmarkPane';
+import React, { useEffect, useRef, useState } from 'react';
+import BookmarkColumn from '../../components/BookmarkColumn';
 import { Global, css } from '@emotion/react';
 import { BookmarkTreeNode } from '../../types';
 import { Box, Grid, IconButton, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { DndProvider } from '../../components/DndContext';
 
 const MIN_COLUMNS = 2;
 const MAX_COLUMNS = 4;
@@ -12,6 +13,7 @@ const MAX_COLUMNS = 4;
 const Options: React.FC = () => {
   const [columns, setColumns] = useState(2);
   const [tree, setTree] = useState<BookmarkTreeNode[]>([]);
+  const dndRootRef = useRef<HTMLDivElement>(null);
   const resetTree = async () => {
     const root = await chrome.bookmarks.getTree();
     if (root[0]?.children) {
@@ -41,17 +43,19 @@ const Options: React.FC = () => {
         `}
       />
       <Stack direction="row">
-        <Grid container spacing={1} padding={1}>
-          {Array(columns)
-            .fill('')
-            .map((v, i) => {
-              return (
-                <Grid item xs={12 / columns} key={i}>
-                  <BookmarkPane tree={tree} />
-                </Grid>
-              );
-            })}
-        </Grid>
+        <DndProvider dndRootRef={dndRootRef}>
+          <Grid container spacing={1} padding={1} ref={dndRootRef}>
+            {Array(columns)
+              .fill('')
+              .map((v, i) => {
+                return (
+                  <Grid item xs={12 / columns} key={i}>
+                    <BookmarkColumn index={i} tree={tree} />
+                  </Grid>
+                );
+              })}
+          </Grid>
+        </DndProvider>
         <Stack>
           <Box sx={{ mt: 1, mr: 1 }}>
             <IconButton

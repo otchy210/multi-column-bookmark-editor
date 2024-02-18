@@ -31,7 +31,7 @@ export default function BookmarkNode({ node, indent = 0 }: Props) {
   return (
     <>
       <ListItemButton
-        data-dnd-id={dndId}
+        data-bk-id={node.id}
         onClick={handleClick}
         sx={{ ml: indent * 2, p: 0 }}
       >

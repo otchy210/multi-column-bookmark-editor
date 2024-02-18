@@ -20,7 +20,7 @@ export default function BookmarkPane({ tree }: Props) {
       >
         <List sx={{ p: 0 }}>
           {tree.map((node) => (
-            <BookmarkNode node={node} />
+            <BookmarkNode node={node} key={node.id} />
           ))}
         </List>
       </Paper>

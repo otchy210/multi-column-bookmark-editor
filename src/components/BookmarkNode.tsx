@@ -56,7 +56,9 @@ export default function BookmarkNode({ node, indent = 0 }: Props) {
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {children.map((node) => {
-              return <BookmarkNode node={node} indent={indent + 1} />;
+              return (
+                <BookmarkNode node={node} indent={indent + 1} key={node.id} />
+              );
             })}
           </List>
         </Collapse>

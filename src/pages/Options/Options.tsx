@@ -44,9 +44,9 @@ const Options: React.FC = () => {
         <Grid container spacing={1} padding={1}>
           {Array(columns)
             .fill('')
-            .map(() => {
+            .map((v, i) => {
               return (
-                <Grid item xs={12 / columns}>
+                <Grid item xs={12 / columns} key={i}>
                   <BookmarkPane tree={tree} />
                 </Grid>
               );

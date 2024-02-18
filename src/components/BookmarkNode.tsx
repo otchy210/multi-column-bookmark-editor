@@ -23,7 +23,12 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
       <ListItemButton
         data-bk-id={node.id}
         onClick={handleClick}
-        sx={{ ml: indent * 2, p: 0 }}
+        sx={{
+          ml: indent * 2,
+          p: 0,
+          border: 'solid 1px transparent',
+          mt: '-1px',
+        }}
         disableRipple={!!node.url}
       >
         <BookmarkNodeIcon node={node} open={open} />

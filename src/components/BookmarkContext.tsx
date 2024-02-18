@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BookmarkTreeNode } from '../types';
 
 type BookmarkMap = Record<string, BookmarkTreeNode>;
-type BookmarkContextType = {
+export type BookmarkContextType = {
   tree: BookmarkTreeNode[];
   map: BookmarkMap;
 };

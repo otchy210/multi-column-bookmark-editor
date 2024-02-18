@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useBookmark } from './BookmarkContext';
+import { BookmarkContextType, useBookmark } from './BookmarkContext';
+import { lightBlue } from '@mui/material/colors';
 
 type DndElementContextType = {
   elem: HTMLElement;
   bkId: string;
-  rect: DOMRect;
 };
 type DndCursorPosType = {
   start: { x: number; y: number };
@@ -12,6 +12,7 @@ type DndCursorPosType = {
 };
 type DndContextType = {
   start?: DndElementContextType;
+  rect?: DOMRect;
   end?: DndElementContextType;
   pos?: DndCursorPosType;
 };
@@ -34,8 +35,7 @@ const getDndElementContext = (e: Event): DndElementContextType | undefined => {
   while (current && current.tagName != 'BODY') {
     const bkId = current.dataset['bkId'];
     if (bkId) {
-      const rect = current.getBoundingClientRect();
-      return { elem: current, bkId, rect };
+      return { elem: current, bkId };
     }
     if (!current.parentElement) {
       return undefined;
@@ -45,6 +45,33 @@ const getDndElementContext = (e: Event): DndElementContextType | undefined => {
   return undefined;
 };
 
+const isOnUpperHalf = (dndElem: DndElementContextType, e: MouseEvent) => {
+  const rect = dndElem.elem.getBoundingClientRect();
+  return e.pageY < rect.top + rect.height / 2;
+};
+
+const setBorderColor = (
+  bookmark: BookmarkContextType,
+  dndElem: DndElementContextType,
+  e: MouseEvent
+) => {
+  const bk = bookmark.map[dndElem.bkId];
+  if (!bk.url) {
+    dndElem.elem.style.borderColor = lightBlue[800];
+  } else {
+    if (isOnUpperHalf(dndElem, e)) {
+      dndElem.elem.style.borderTopColor = lightBlue[800];
+      dndElem.elem.style.borderBottomColor = 'transparent';
+    } else {
+      dndElem.elem.style.borderTopColor = 'transparent';
+      dndElem.elem.style.borderBottomColor = lightBlue[800];
+    }
+  }
+};
+
+const resetBorderColor = (dndElem: DndElementContextType) => {
+  dndElem.elem.style.borderColor = 'transparent';
+};
 type DndProviderProps = {
   dndRootRef: React.RefObject<HTMLDivElement>;
   children: React.ReactNode;
@@ -52,6 +79,10 @@ type DndProviderProps = {
 
 export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
   const [start, setStart] = useState<DndElementContextType | undefined>(
+    undefined
+  );
+  const [rect, setRect] = useState<DOMRect | undefined>(undefined);
+  const [hover, setHover] = useState<DndElementContextType | undefined>(
     undefined
   );
   const [end, setEnd] = useState<DndElementContextType | undefined>(undefined);
@@ -69,6 +100,7 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       const x = e.pageX;
       const y = e.pageY;
       setStart(newStart);
+      setRect(newStart?.elem.getBoundingClientRect());
       setPos({ start: { x, y }, diff: { x: 0, y: 0 } });
     };
     const mouseMoveHandler = (e: MouseEvent) => {
@@ -80,11 +112,23 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
         diff: { x: e.pageX - pos.start.x, y: e.pageY - pos.start.y },
       };
       setPos(newPos);
+      const currentHover = getDndElementContext(e);
+      if (currentHover && currentHover.bkId != start.bkId) {
+        setBorderColor(bookmark, currentHover, e);
+      }
+      if (currentHover?.elem == hover?.elem) {
+        return;
+      }
+      if (hover) {
+        resetBorderColor(hover);
+      }
+      setHover(currentHover);
     };
     const mouseUpHandler = (e: MouseEvent) => {
       if (start) {
         const end = getDndElementContext(e);
         if (end && start.bkId != end.bkId) {
+          resetBorderColor(end);
           setEnd(end);
           const s = bookmark.map[start.bkId];
           const e = bookmark.map[end.bkId];
@@ -92,6 +136,8 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
         }
       }
       setStart(undefined);
+      setRect(undefined);
+      setHover(undefined);
       setEnd(undefined);
       setPos(undefined);
     };
@@ -103,9 +149,9 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
       dndRootRef.current?.removeEventListener('mousemove', mouseMoveHandler);
       dndRootRef.current?.removeEventListener('mouseup', mouseUpHandler);
     };
-  }, [start, end, pos, bookmark]);
+  }, [start, rect, hover, end, pos, bookmark]);
   return (
-    <DndContext.Provider value={{ start, end, pos }}>
+    <DndContext.Provider value={{ start, rect, end, pos }}>
       {children}
     </DndContext.Provider>
   );

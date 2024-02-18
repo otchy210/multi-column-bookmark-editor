@@ -8,15 +8,15 @@ import { useDnd } from './DndContext';
 export const BookmarkNodePhantom: React.FC = () => {
   const dnd = useDnd();
   const bookmark = useBookmark();
-  if (!dnd?.start || !dnd?.pos) {
+  if (!dnd?.start || !dnd?.rect || !dnd?.pos) {
     return <></>;
   }
   const node = bookmark.map[dnd.start.bkId];
   if (!node) {
     return <></>;
   }
-  const left = dnd.start.rect.left + dnd.pos.diff.x;
-  const top = dnd.start.rect.top + dnd.pos.diff.y;
+  const left = dnd.rect.left + dnd.pos.diff.x + 1;
+  const top = dnd.rect.top + dnd.pos.diff.y + 1;
   return (
     <List
       sx={{
@@ -24,7 +24,6 @@ export const BookmarkNodePhantom: React.FC = () => {
         position: 'fixed',
         left: `${left}px`,
         top: `${top}px`,
-        cursor: 'move',
       }}
     >
       <ListItemButton sx={{ p: 0 }} disabled={true}>

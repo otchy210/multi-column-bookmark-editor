@@ -66,7 +66,7 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
     const mouseUpHandler = (e: MouseEvent) => {
       if (start) {
         const end = getDndElementContext(e);
-        if (end) {
+        if (end && start.bkId != end.bkId) {
           setEnd(end);
           console.log({ start, end });
         }

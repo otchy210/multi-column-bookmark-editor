@@ -21,6 +21,7 @@ import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { SvgIconComponent } from '@mui/icons-material';
+import { useFolderEditor } from './FolderEditorContext';
 
 type Props = {
   node: BookmarkTreeNode;
@@ -37,8 +38,10 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
   const [contextMenuPos, setContextMenuPos] = useState<Position | undefined>(
     undefined
   );
+  const { open: openFolderEditor } = useFolderEditor();
   const children: BookmarkTreeNode[] = node.children ?? [];
   const hasChildren = children.length > 0;
+  const isTop = node.parentId == '0';
   const isBookmark = node.url;
   const isFolder = !node.url;
   const handleClick = () => {
@@ -61,9 +64,15 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
   const handleOpenNewSecretWindow = (e: MouseEvent) => {
     chrome.windows.create({ url: node.url, incognito: true });
   };
-  const handleEdit = (e: MouseEvent) => {};
+  const handleEdit = (e: MouseEvent) => {
+    if (isFolder) {
+      openFolderEditor({ bkId: node.id });
+    }
+  };
   const handleAddNewBookmark = (e: MouseEvent) => {};
-  const handleAddNewFolder = (e: MouseEvent) => {};
+  const handleAddNewFolder = (e: MouseEvent) => {
+    openFolderEditor({ parentBkId: node.id });
+  };
   const handleDelete = (e: MouseEvent) => {};
   type BkMenuItemProps = {
     Icon: SvgIconComponent;
@@ -129,12 +138,14 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
             />
           )}
           {isBookmark && <Divider />}
-          <BkMenuItem
-            Icon={ModeEditOutlinedIcon}
-            label="Edit..."
-            onClick={handleEdit}
-          />
-          <Divider />
+          {!isTop && (
+            <BkMenuItem
+              Icon={ModeEditOutlinedIcon}
+              label="Edit..."
+              onClick={handleEdit}
+            />
+          )}
+          {!isTop && <Divider />}
           {isFolder && (
             <BkMenuItem
               Icon={BookmarkAddOutlinedIcon}

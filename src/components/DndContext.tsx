@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BookmarkContextType, HoverPos, useBookmark } from './BookmarkContext';
-import { lightBlue } from '@mui/material/colors';
+import { blue } from '@mui/material/colors';
 
 type DndElementContextType = {
   elem: HTMLElement;
@@ -81,14 +81,14 @@ const setBorderColor = (
   switch (pos) {
     case 'TOP':
       resetBorderColor(dndElem);
-      dndElem.elem.style.borderTopColor = lightBlue[800];
+      dndElem.elem.style.borderTopColor = blue[700];
       break;
     case 'MIDDLE':
-      dndElem.elem.style.borderColor = lightBlue[800];
+      dndElem.elem.style.borderColor = blue[700];
       break;
     case 'BOTTOM':
       resetBorderColor(dndElem);
-      dndElem.elem.style.borderBottomColor = lightBlue[800];
+      dndElem.elem.style.borderBottomColor = blue[700];
       break;
   }
 };

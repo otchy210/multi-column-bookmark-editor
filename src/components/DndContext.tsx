@@ -113,6 +113,9 @@ export const DndProvider = ({ dndRootRef, children }: DndProviderProps) => {
   const bookmark = useBookmark();
   useEffect(() => {
     const mouseDownHandler = (e: MouseEvent) => {
+      if (e.button != 0) {
+        return;
+      }
       if (start) {
         return;
       }

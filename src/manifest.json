@@ -16,5 +16,5 @@
       "matches": []
     }
   ],
-  "permissions": ["bookmarks"]
+  "permissions": ["bookmarks", "tabs", "windows"]
 }

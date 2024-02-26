@@ -160,8 +160,14 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
               onClick={handleAddNewFolder}
             />
           )}
-          {isFolder && <Divider />}
-          <BkMenuItem Icon={DeleteIcon} label="Delete" onClick={handleDelete} />
+          {isFolder && !isTop && <Divider />}
+          {!isTop && (
+            <BkMenuItem
+              Icon={DeleteIcon}
+              label="Delete"
+              onClick={handleDelete}
+            />
+          )}
         </Menu>
       </ListItemButton>
       {hasChildren && (

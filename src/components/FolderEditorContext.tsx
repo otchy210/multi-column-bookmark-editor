@@ -3,11 +3,10 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   TextField,
 } from '@mui/material';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import { useBookmark } from './BookmarkContext';
 
 type OpenFunctionProps = { bkId?: string; parentBkId?: string };
@@ -37,17 +36,20 @@ export const FolderEditorProvider = ({
   const [title, setTitle] = useState('');
   const [buttonLabel, setButtonLabel] = useState('');
   const [defaultValue, setDefaultValue] = useState('');
+  const [bkId, setBkId] = useState<string | undefined>(undefined);
+  const [parentBkId, setParentBkId] = useState<string | undefined>(undefined);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const titleRef = useRef<HTMLInputElement>(null);
   const bookmark = useBookmark();
-
-  const handleClose = () => {
-    setOpened(false);
-  };
 
   const open = ({ bkId, parentBkId }: OpenFunctionProps) => {
     if (!bkId && !parentBkId) {
       throw new Error('Either bkId or parentBkId is required.');
     }
     setOpened(true);
+    setBkId(bkId);
+    setParentBkId(parentBkId);
     if (bkId) {
       setTitle('Edit folder');
       setButtonLabel('Save');
@@ -59,39 +61,71 @@ export const FolderEditorProvider = ({
     }
   };
 
+  const handleClose = () => {
+    setOpened(false);
+    setTitle('');
+    setButtonLabel('');
+    setDefaultValue('');
+    setBkId(undefined);
+    setParentBkId(undefined);
+    setBkId('');
+    setParentBkId('');
+    setError(false);
+    setErrorMessage('');
+  };
+
+  const validate = () => {
+    if (!titleRef.current) {
+      return false;
+    }
+    const title = titleRef.current.querySelector('input')?.value;
+    if (!title || title.trim().length === 0) {
+      setError(true);
+      setErrorMessage('Folder title is required.');
+      return false;
+    }
+    return { title };
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = validate();
+    if (!values) {
+      return;
+    }
+    const { title } = values;
+    if (bkId) {
+      bookmark.update(bkId, title);
+    } else if (parentBkId) {
+      bookmark.create(parentBkId, title);
+    }
+    handleClose();
+  };
+
   return (
     <FolderEditorContext.Provider value={{ open }}>
       {children}
-      <Dialog
-        open={opened}
-        onClose={handleClose}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            handleClose();
-          },
-        }}
-      >
-        <DialogTitle>{title}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="name"
-            label="name"
-            fullWidth
-            defaultValue={defaultValue}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit">{buttonLabel}</Button>
-        </DialogActions>
+      <Dialog open={opened} onClose={handleClose} maxWidth="md" fullWidth>
+        <form noValidate onSubmit={handleSubmit}>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              label="title"
+              ref={titleRef}
+              fullWidth
+              defaultValue={defaultValue}
+              error={error}
+              helperText={errorMessage}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit">{buttonLabel}</Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </FolderEditorContext.Provider>
   );

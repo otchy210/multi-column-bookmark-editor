@@ -22,6 +22,7 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { SvgIconComponent } from '@mui/icons-material';
 import { useFolderEditor } from './FolderEditorContext';
+import { useRemoveDialog } from './RemoveDialogContext';
 
 type Props = {
   node: BookmarkTreeNode;
@@ -39,6 +40,7 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
     undefined
   );
   const { open: openFolderEditor } = useFolderEditor();
+  const { open: openRemoveDialog } = useRemoveDialog();
   const children: BookmarkTreeNode[] = node.children ?? [];
   const hasChildren = children.length > 0;
   const isTop = node.parentId == '0';
@@ -58,22 +60,24 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
     e.stopPropagation();
     setContextMenuPos(undefined);
   };
-  const handleOpenNewTab = (e: MouseEvent) => {
+  const handleOpenNewTab = () => {
     chrome.tabs.create({ url: node.url });
   };
-  const handleOpenNewSecretWindow = (e: MouseEvent) => {
+  const handleOpenNewSecretWindow = () => {
     chrome.windows.create({ url: node.url, incognito: true });
   };
-  const handleEdit = (e: MouseEvent) => {
+  const handleEdit = () => {
     if (isFolder) {
       openFolderEditor({ bkId: node.id });
     }
   };
   const handleAddNewBookmark = (e: MouseEvent) => {};
-  const handleAddNewFolder = (e: MouseEvent) => {
+  const handleAddNewFolder = () => {
     openFolderEditor({ parentBkId: node.id });
   };
-  const handleDelete = (e: MouseEvent) => {};
+  const handleRemove = () => {
+    openRemoveDialog({ bkId: node.id });
+  };
   type BkMenuItemProps = {
     Icon: SvgIconComponent;
     label: string;
@@ -164,8 +168,8 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
           {!isTop && (
             <BkMenuItem
               Icon={DeleteIcon}
-              label="Delete"
-              onClick={handleDelete}
+              label="Remove"
+              onClick={handleRemove}
             />
           )}
         </Menu>

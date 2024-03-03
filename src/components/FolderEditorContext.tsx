@@ -38,7 +38,6 @@ export const FolderEditorProvider = ({
   const [defaultValue, setDefaultValue] = useState('');
   const [bkId, setBkId] = useState<string | undefined>(undefined);
   const [parentBkId, setParentBkId] = useState<string | undefined>(undefined);
-  const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const titleRef = useRef<HTMLInputElement>(null);
   const bookmark = useBookmark();
@@ -70,7 +69,6 @@ export const FolderEditorProvider = ({
     setParentBkId(undefined);
     setBkId('');
     setParentBkId('');
-    setError(false);
     setErrorMessage('');
   };
 
@@ -80,7 +78,6 @@ export const FolderEditorProvider = ({
     }
     const title = titleRef.current.querySelector('input')?.value;
     if (!title || title.trim().length === 0) {
-      setError(true);
       setErrorMessage('Folder title is required.');
       return false;
     }
@@ -117,7 +114,7 @@ export const FolderEditorProvider = ({
               ref={titleRef}
               fullWidth
               defaultValue={defaultValue}
-              error={error}
+              error={!!errorMessage}
               helperText={errorMessage}
             />
           </DialogContent>

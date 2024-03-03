@@ -78,7 +78,7 @@ export const RemoveDialogContextProvider = ({
             Are you sure to remove "{node?.title}"?
             <br />
             {!node?.url &&
-              'You are about to remove all bookmarks and subfolders inside it.'}
+              'You are about to remove all pages and subfolders inside it.'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

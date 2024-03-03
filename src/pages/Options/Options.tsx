@@ -9,6 +9,7 @@ import { BookmarkNodePhantom } from '../../components/BookmarkNodePhantom';
 import { BookmarkColumn } from '../../components/BookmarkColumn';
 import { FolderEditorProvider } from '../../components/FolderEditorContext';
 import { RemoveDialogContextProvider } from '../../components/RemoveDialogContext';
+import { PageEditorProvider } from '../../components/PageEditorContext';
 
 const MIN_COLUMNS = 2;
 const MAX_COLUMNS = 4;
@@ -29,38 +30,40 @@ export const Options: React.FC = () => {
         <DndProvider dndRootRef={dndRootRef}>
           <RemoveDialogContextProvider>
             <FolderEditorProvider>
-              <BookmarkNodePhantom />
-              <Stack direction="row">
-                <Grid container spacing={1} padding={1} ref={dndRootRef}>
-                  {Array(columns)
-                    .fill('')
-                    .map((v, i) => {
-                      return (
-                        <Grid item xs={12 / columns} key={i}>
-                          <BookmarkColumn />
-                        </Grid>
-                      );
-                    })}
-                </Grid>
-                <Stack>
-                  <Box sx={{ mt: 1, mr: 1 }}>
-                    <IconButton
-                      disabled={columns == MAX_COLUMNS}
-                      onClick={() => setColumns(columns + 1)}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Box>
-                  <Box sx={{ mt: 1, mr: 1 }}>
-                    <IconButton
-                      disabled={columns == MIN_COLUMNS}
-                      onClick={() => setColumns(columns - 1)}
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                  </Box>
+              <PageEditorProvider>
+                <BookmarkNodePhantom />
+                <Stack direction="row">
+                  <Grid container spacing={1} padding={1} ref={dndRootRef}>
+                    {Array(columns)
+                      .fill('')
+                      .map((v, i) => {
+                        return (
+                          <Grid item xs={12 / columns} key={i}>
+                            <BookmarkColumn />
+                          </Grid>
+                        );
+                      })}
+                  </Grid>
+                  <Stack>
+                    <Box sx={{ mt: 1, mr: 1 }}>
+                      <IconButton
+                        disabled={columns == MAX_COLUMNS}
+                        onClick={() => setColumns(columns + 1)}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </Box>
+                    <Box sx={{ mt: 1, mr: 1 }}>
+                      <IconButton
+                        disabled={columns == MIN_COLUMNS}
+                        onClick={() => setColumns(columns - 1)}
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+                    </Box>
+                  </Stack>
                 </Stack>
-              </Stack>
+              </PageEditorProvider>
             </FolderEditorProvider>
           </RemoveDialogContextProvider>
         </DndProvider>

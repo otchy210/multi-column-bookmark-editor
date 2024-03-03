@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { SvgIconComponent } from '@mui/icons-material';
 import { useFolderEditor } from './FolderEditorContext';
 import { useRemoveDialog } from './RemoveDialogContext';
+import { usePageEditor } from './PageEditorContext';
 
 type Props = {
   node: BookmarkTreeNode;
@@ -40,6 +41,7 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
     undefined
   );
   const { open: openFolderEditor } = useFolderEditor();
+  const { open: oepnPageEditor } = usePageEditor();
   const { open: openRemoveDialog } = useRemoveDialog();
   const children: BookmarkTreeNode[] = node.children ?? [];
   const hasChildren = children.length > 0;
@@ -69,9 +71,13 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
   const handleEdit = () => {
     if (isFolder) {
       openFolderEditor({ bkId: node.id });
+    } else {
+      oepnPageEditor({ bkId: node.id });
     }
   };
-  const handleAddNewBookmark = (e: MouseEvent) => {};
+  const handleAddNewPage = () => {
+    oepnPageEditor({ parentBkId: node.id });
+  };
   const handleAddNewFolder = () => {
     openFolderEditor({ parentBkId: node.id });
   };
@@ -153,8 +159,8 @@ export const BookmarkNode: React.FC<Props> = ({ node, indent = 0 }: Props) => {
           {isFolder && (
             <BkMenuItem
               Icon={BookmarkAddOutlinedIcon}
-              label="Add new bookmark..."
-              onClick={handleAddNewBookmark}
+              label="Add new page..."
+              onClick={handleAddNewPage}
             />
           )}
           {isFolder && (

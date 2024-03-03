@@ -18,7 +18,7 @@ var packageInfo = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 config.plugins = (config.plugins || []).concat(
   new ZipPlugin({
     filename: `${packageInfo.name}-${packageInfo.version}.zip`,
-    path: path.join(__dirname, '../', 'zip'),
+    path: path.join(__dirname, '../', 'dist'),
   })
 );
 

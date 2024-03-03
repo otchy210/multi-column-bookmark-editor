@@ -10,6 +10,8 @@ export type BookmarkContextType = {
   move: (srcId: string, destId: string, pos: HoverPos) => void;
   create: (parentId: string, title: string, url?: string) => void;
   update: (id: string, title: string, url?: string) => void;
+  remove: (id: string) => void;
+  removeTree: (id: string) => void;
 };
 
 const BookmarkContext = createContext<BookmarkContextType | undefined>(
@@ -69,6 +71,12 @@ export const BookmarkProvider = ({ children }: BookmarkProviderProps) => {
         break;
     }
   };
+  const remove = (id: string) => {
+    chrome.bookmarks.remove(id);
+  };
+  const removeTree = (id: string) => {
+    chrome.bookmarks.removeTree(id);
+  };
   const resetTree = async () => {
     const root = await chrome.bookmarks.getTree();
     const children = root[0]?.children;
@@ -95,7 +103,9 @@ export const BookmarkProvider = ({ children }: BookmarkProviderProps) => {
     };
   }, []);
   return (
-    <BookmarkContext.Provider value={{ tree, map, move, create, update }}>
+    <BookmarkContext.Provider
+      value={{ tree, map, move, create, update, remove, removeTree }}
+    >
       {children}
     </BookmarkContext.Provider>
   );

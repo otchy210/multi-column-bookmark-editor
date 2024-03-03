@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import React, { createContext, useContext, useState } from 'react';
 import { useBookmark } from './BookmarkContext';
+import { BookmarkTreeNode } from '../types';
 
 type OpenFunctionProps = {
   bkId: string;
@@ -35,19 +36,28 @@ export const RemoveDialogContextProvider = ({
   children,
 }: RemoveDialogContextProviderProps) => {
   const [opened, setOpened] = useState(false);
-  const [bkId, setBkId] = useState<string | undefined>(undefined);
-  const [title, setTitle] = useState('');
+  const [node, setNode] = useState<BookmarkTreeNode | undefined>(undefined);
   const bookmark = useBookmark();
 
   const open = ({ bkId }: OpenFunctionProps) => {
     setOpened(true);
-    setBkId(bkId);
     const bk = bookmark.map[bkId];
-    setTitle(bk.title);
+    setNode(bk);
   };
   const handleClose = () => {
     setOpened(false);
-    setBkId(undefined);
+    setNode(undefined);
+  };
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (node) {
+      if (node.url) {
+        bookmark.remove(node.id);
+      } else {
+        bookmark.removeTree(node.id);
+      }
+    }
+    handleClose();
   };
   return (
     <RemoveDialogContext.Provider value={{ open }}>
@@ -59,17 +69,16 @@ export const RemoveDialogContextProvider = ({
         fullWidth
         PaperProps={{
           component: 'form',
-          onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            // bookmark.remove
-            handleClose();
-          },
+          onSubmit: handleSubmit,
         }}
       >
         <DialogTitle>Removal confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure to remove "{title}"?
+            Are you sure to remove "{node?.title}"?
+            <br />
+            {!node?.url &&
+              'You are about to remove all bookmarks and subfolders inside it.'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

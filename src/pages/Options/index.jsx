@@ -6,5 +6,5 @@ import '@fontsource/roboto/400.css';
 import { Options } from './Options';
 
 const container = document.getElementById('app-container');
-const root = createRoot(container); // createRoot(container!) if you use TypeScript
+const root = createRoot(container);
 root.render(<Options />);
